@@ -29,12 +29,12 @@ model Product {
   // productId          String   @unique //定义商品表的商品编号
   // shopId             String //定义商品表的商店id
   // brandId            Int //定义商品表的品牌id
-  userId             Int[] //定义商品表的用户id
+  userId             Int //定义商品表的用户id
   productName        String //定义商品表的商品名称
   productDescription String? //定义商品表的商品描述
   productPrice       Float //定义商品表的商品价格
   productStock       Int //定义商品表的商品库存
-  productImage       String? //定义商品表的商品图片
+  productImage       String //定义商品表的商品图片
   createdAt          DateTime @default(now()) //定义商品表的创建时间
   updatedAt          DateTime @updatedAt //定义商品表的更新时间
 }
