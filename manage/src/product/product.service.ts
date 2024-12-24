@@ -5,6 +5,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
+
 export class ProductService {
   // 增删改查操作 C（Create）：创建，指新增数据。
   // R（Retrieve）：检索，指查询数据。
@@ -29,8 +30,12 @@ export class ProductService {
   // }
 
   findOne(id: number) {
-    // return `This action returns a #${id} product`;
-    return this.prisma.product.findUnique({ where: { id } });
+    return this.prisma.product.findUnique({
+      where: { id },
+      // include: {
+      //   user: true,
+      // },
+    });
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {

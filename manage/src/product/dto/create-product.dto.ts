@@ -11,8 +11,9 @@ import {
 
 export class CreateProductDto {
   @IsInt()
+  @IsOptional()
   @ApiProperty()
-  userId: number;
+  productUserId: number;
 
   @IsString()
   @IsNotEmpty()
