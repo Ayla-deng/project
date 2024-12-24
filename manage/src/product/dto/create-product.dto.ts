@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from "@nestjs/swagger";
 import {
-  // IsBoolean,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -10,6 +10,7 @@ import {
 } from 'class-validator';
 
 export class CreateProductDto {
+  @IsInt()
   @ApiProperty()
   userId: number;
 

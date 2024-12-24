@@ -29,7 +29,7 @@ model Product {
   // productId          String   @unique //定义商品表的商品编号
   // shopId             String //定义商品表的商店id
   // brandId            Int //定义商品表的品牌id
-  userId             Int //定义商品表的用户id
+  userId             Int      @unique //定义商品表的用户id
   productName        String //定义商品表的商品名称
   productDescription String? //定义商品表的商品描述
   productPrice       Float //定义商品表的商品价格
@@ -42,7 +42,7 @@ model Product {
 //定义商品分类表
 model ProductCategory {
   id               Int      @id @default(autoincrement()) //定义商品分类表的分类id
-  categoryName     String //定义商品分类表的分类名称
+  categoryName     String   @unique //定义商品分类表的分类名称
   parentCategoryId Int? //定义商品分类表的父分类id
   createdAt        DateTime @default(now()) //定义商品表的创建时间
   updatedAt        DateTime @updatedAt //定义商品表的更新时间
