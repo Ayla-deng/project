@@ -17,14 +17,16 @@ export class ProductController {
   @Post()
   // 添加Swagger响应类型
   @ApiCreatedResponse({ type: ProductEntity })
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.create(createProductDto);
+
+  async create(@Body() createProductDto: CreateProductDto) {
+    return new ProductEntity(await this.productService.create(createProductDto));
   }
 
   @Get()
   @ApiOkResponse({ type: ProductEntity, isArray: true })
-  findAll() {
-    return this.productService.findAll();
+  async findAll() {
+    const products = await this.productService.findAll();
+    return products.map(product => new ProductEntity(product));
   }
 
   // { where: { published: true } }
@@ -35,25 +37,25 @@ export class ProductController {
 
   @Get(':id')
   @ApiOkResponse({ type: ProductEntity })
-  // findOne(@Param('id', ParseIntPipe) id: number) {
-  // return this.productService.findOne(+id);
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    const article = await this.productService.findOne(id);
-    if (!article) {
-      throw new NotFoundException(`Article with ${id} does not exist.`);
+    const product = await this.productService.findOne(id);
+    if (!product) {
+      return new NotFoundException(`Product with ${id} does not exist.`);
+    } else {
+      return new ProductEntity(await this.productService.findOne(id));
     }
-    return article;
   }
+
 
   @Patch(':id')
   @ApiOkResponse({ type: ProductEntity })
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(id, updateProductDto);
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateProductDto: UpdateProductDto) {
+    return new ProductEntity(await this.productService.update(id, updateProductDto));
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: ProductEntity })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.productService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return new ProductEntity(await this.productService.remove(id));
   }
 }

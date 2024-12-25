@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Product } from '@prisma/client';
 import { ApiProperty } from "@nestjs/swagger";
-// import { UserEntity } from 'src/user/entities/user.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
 
 export class ProductEntity implements Product {
   userId: number;
@@ -13,6 +13,19 @@ export class ProductEntity implements Product {
   // userId: number;
   @ApiProperty({ required: false, nullable: true })
   productUserId: number | null;
+
+  // 商品和用户一起返回的前提下，隐藏password字段 *******start******
+  @ApiProperty({ required: false, type: UserEntity })
+  productUser?: UserEntity;
+
+  constructor({ productUser, ...data }: Partial<ProductEntity>) {
+    Object.assign(this, data);
+
+    if (productUser) {
+      this.productUser = new UserEntity(productUser);
+    }
+  }
+  //*****************end******************* */
 
   @ApiProperty()
   productName: string;
