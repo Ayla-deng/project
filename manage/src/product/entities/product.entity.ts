@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Product } from '@prisma/client';
 import { ApiProperty } from "@nestjs/swagger";
+//使用UserEntity解决password再次公开问题
 import { UserEntity } from 'src/user/entities/user.entity';
 
 export class ProductEntity implements Product {

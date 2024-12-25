@@ -17,7 +17,7 @@ export class ProductController {
   @Post()
   // 添加Swagger响应类型
   @ApiCreatedResponse({ type: ProductEntity })
-
+  //将存在的属性初始化为UserEntity的实例
   async create(@Body() createProductDto: CreateProductDto) {
     return new ProductEntity(await this.productService.create(createProductDto));
   }
