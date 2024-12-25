@@ -34,6 +34,7 @@ export class ProductService {
       where: { id },
       include: {
         productUser: true,
+        productCategory: true,
       },
     });
   }

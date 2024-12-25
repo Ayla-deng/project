@@ -15,6 +15,11 @@ export class CreateProductDto {
   @ApiProperty()
   productUserId: number;
 
+  @IsInt()
+  @IsOptional()
+  @ApiProperty()
+  productCategoryId: number;
+
   @IsString()
   @IsNotEmpty()
   @MinLength(5)

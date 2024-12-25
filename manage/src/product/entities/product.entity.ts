@@ -15,6 +15,9 @@ export class ProductEntity implements Product {
   @ApiProperty({ required: false, nullable: true })
   productUserId: number | null;
 
+  @ApiProperty({ required: false, nullable: true })
+  productCategoryId: number | null;
+
   // 商品和用户一起返回的前提下，隐藏password字段 *******start******
   @ApiProperty({ required: false, type: UserEntity })
   productUser?: UserEntity;
