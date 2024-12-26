@@ -18,5 +18,9 @@ const router = createBrowserRouter([
 ])
 
 //导出实例
+<<<<<<< HEAD
 export default router;
 
+=======
+export default router;
+>>>>>>> 0c8db14 (登录-axios封装处理)
