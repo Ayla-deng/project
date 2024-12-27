@@ -1,7 +1,8 @@
 //封装request请求模块
 import axios from 'axios'
+import { getToken } from './token'
 
-// 项目通用
+// 项目通用  ***********************
 // 1.根域名配置
 // 2.超时时间
 // 3.请求拦截器/响应拦截器
@@ -14,7 +15,14 @@ const request = axios.create({
 
 // 添加请求拦截器
 // 在请求发送之前，先做拦截 插入一些自定义的配置[参数的处理]
-request.interceptors.request.use((config)=> {
+request.interceptors.request.use((config) => {
+  // 操作这个congig 注入token数据
+  //1. 获取到token 在本地可以取到
+  //2. 注入 按照后端格式要求做token格式拼接
+  const token = getToken()
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`  //固定格式 空格不能丢失
+  }
     return config
   }, (error)=> {
     return Promise.reject(error)

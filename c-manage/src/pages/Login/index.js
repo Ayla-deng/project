@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 
 import './index.scss'
 import { Card, Form, Input, Button, message } from 'antd'
@@ -35,7 +36,7 @@ const Login = () => {
                 message: '请输入邮箱地址'
               },
               {
-                pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.com$/,
+                pattern: /^[\w\.-]+@[\w\.-]+\.\com$/,   //@ .com 邮箱格式
                 message: '邮箱格式不对'
               }
             ]}
