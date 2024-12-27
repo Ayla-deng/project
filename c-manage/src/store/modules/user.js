@@ -7,12 +7,15 @@ const userStore = createSlice({
   name: 'user',
   // 数据状态
   initialState: {
-    token:''
+    //添加初始化数据
+    token: localStorage.getItem('token_key') || ''
   },
   // 同步修改方法
   reducers: {
     setToken (state, action) {
-      state.token = action.payload
+      state.token = action.payload //存到了redux里面
+      // localstorage 也存一份
+      localStorage.setItem('token_key', action.payload)
     }
   }
 })
