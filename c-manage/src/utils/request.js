@@ -7,7 +7,8 @@ import axios from 'axios'
 // 3.请求拦截器/响应拦截器
 
 const request = axios.create({
-  baseURL: 'http://localhost:3001',
+  baseURL: 'http://localhost:3000/',
+  // baseURL: 'http://geek.itheima.net/v1_0',
   timeout: 5000
 })
 
@@ -30,4 +31,4 @@ request.interceptors.response.use((response)=> {
     // 对响应错误做点什么
     return Promise.reject(error)
 })
-export default request
+export default request;

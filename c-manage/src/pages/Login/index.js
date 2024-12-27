@@ -1,12 +1,23 @@
 
 import './index.scss'
-import { Card, Form, Input, Button } from 'antd'
+import { Card, Form, Input, Button, message } from 'antd'
 import logo from '@/assets/logo.png'
+import { useDispatch } from 'react-redux'
+import { fetchLogin } from '@/store/modules/user'
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   //校验逻辑通过，自动触发onFinish函数,用形参接收传过来的实参
-  const onFinish = formValue => {
-    console.log(formValue)
+  const onFinish = async (Value) => {
+    console.log(Value)
+    //触发异步action fetchLogin
+    await dispatch(fetchLogin(Value))
+    //1. 跳转到首页
+    navigate('/')
+    //2.提示用户的登录成功
+    message.success('登录成功')
   }
   return (
     <div className="login">
@@ -14,18 +25,7 @@ const Login = () => {
         <img className="login-logo" src={logo} alt="" />
         {/* 登录表单 */}
         <Form onFinish={ onFinish } validateTrigger='onBlur'>
-          <Form.Item
-            //name(与后端接口保持一致)指定校验字段名   rules指定校验规则对象
-            name="name"
-            rules={[
-              {
-                required: true,
-                message: '请输入用户名称'
-              }
-            ]}
-          >
-            <Input size="large" placeholder="请输入用户名称" />
-          </Form.Item>
+          
           <Form.Item
             name="email"
             //多条校验逻辑 先校验第一条 ，第一条通过后再校验第二条
