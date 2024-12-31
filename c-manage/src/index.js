@@ -5,6 +5,7 @@ import { RouterProvider } from 'react-router-dom';
 import router from './router';
 import {Provider} from 'react-redux'
 import store from './store';
+import 'normalize.css'
 
 // import ReactDOM from 'react-dom';
 // import App from './App';

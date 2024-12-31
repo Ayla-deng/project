@@ -17,11 +17,11 @@ const request = axios.create({
 // 在请求发送之前，先做拦截 插入一些自定义的配置[参数的处理]
 request.interceptors.request.use((config) => {
   // 操作这个congig 注入token数据
-  //1. 获取到token 在本地可以取到
+  //1. 获取到token (在本地可以取到)
   //2. 注入 按照后端格式要求做token格式拼接
   const token = getToken()
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`  //固定格式 空格不能丢失
+    config.headers.Authorization = `Bearer ${token}`  //固定格式 空格不能丢失   例如添加一个Bearer令牌
   }
     return config
   }, (error)=> {

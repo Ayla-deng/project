@@ -16,7 +16,7 @@ const Login = () => {
     //触发异步action fetchLogin
     await dispatch(fetchLogin(Value))
     //1. 跳转到首页
-    navigate('/')
+    navigate('/layout')
     //2.提示用户的登录成功
     message.success('登录成功')
   }
@@ -36,7 +36,8 @@ const Login = () => {
                 message: '请输入邮箱地址'
               },
               {
-                pattern: /^[\w\.-]+@[\w\.-]+\.\com$/,   //@ .com 邮箱格式
+                // pattern: /^[\w\.-]+@[\w\.-]+\.\com$/,   //@ .com 邮箱格式
+                pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.com$/, //qq.com
                 message: '邮箱格式不对'
               }
             ]}
