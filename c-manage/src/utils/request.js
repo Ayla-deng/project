@@ -1,6 +1,7 @@
 //封装request请求模块
 import axios from 'axios'
-import { getToken } from './token'
+import { getToken, removeToken } from './token'
+import router from '@/router'
 
 // 项目通用  ***********************
 // 1.根域名配置
@@ -36,7 +37,17 @@ request.interceptors.response.use((response)=> {
     return response.data
   }, (error)=> {
     // 超出 2xx 范围的状态码都会触发该函数。
-    // 对响应错误做点什么
-    return Promise.reject(error)
+  // 对响应错误做点什么
+  // 监控401 token失效
+  console.dir(error)
+  if (error.response.status === 401) {
+    // 清除本地token
+    removeToken()
+    // 跳转登录页面
+    router.navigate('/login')
+    // 页面刷新
+    window.location.reload()
+  }
+  return Promise.reject(error)
 })
 export default request;
