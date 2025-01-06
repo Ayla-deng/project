@@ -12,7 +12,6 @@ import './index.scss'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { fetchUserInfo } from '@/store/modules/user'
 import { useDispatch } from'react-redux'
-
 import { useSelector } from'react-redux'
 
 const { Header, Sider } = Layout
