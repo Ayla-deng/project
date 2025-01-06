@@ -1,5 +1,7 @@
+/* eslint-disable no-undef */
 // 封装和文商品相关的接口函数
 
+import axios from 'axios'
 import request from '@/utils/request'
 // 1. 获取商品分类列表
 
@@ -30,6 +32,7 @@ export function getProductAPI(params) {
     params
   })
 }
+
 
 // 4. 获取用户名称列表
 

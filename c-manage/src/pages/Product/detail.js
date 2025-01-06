@@ -1,12 +1,12 @@
+/* eslint-disable no-undef */
 import { Link } from 'react-router-dom'
-import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select } from 'antd'
+import { Card, Breadcrumb, Form, Button, Select,Input, Modal } from 'antd'
 //时间选择器汉化处理
-import locale from 'antd/es/date-picker/locale/zh_CN'
+// import locale from 'antd/es/date-picker/locale/zh_CN'
 
 // 导入资源
-import { Table, Tag, Space } from 'antd'
+import { Table, Space } from 'antd'
 import { EditOutlined, QuestionCircleOutlined, DeleteOutlined } from '@ant-design/icons'
-import img404 from '@/assets/error.png'
 // import useCategory from '@/hooks/useCategory'
 import { useEffect, useState } from 'react'
 import { getProductAPI } from '@/apis/product'
@@ -15,37 +15,23 @@ import useUser from '@/hooks/useUser'
 
 
 const { Option } = Select
-const { RangePicker } = DatePicker
+// const { RangePicker } = DatePicker
 
 const Product = () => {
   const { categoryList =[]} = useCategory()
-  const { userList =[]} = useUser()
-  // const [categoryIdList, setCategoryIdList] = useState([])
-  // setCategoryIdList(categoryList)
-
-  console.log(22222222222);
-  
-  console.log(categoryList)
-  console.log(2222222222222);
+  const { userList = [] } = useUser()
 
   // 用户id到用户名的映射
   const [userName, setUserName] = useState({})
   // 商品分类id到商品分类名的映射
   const [categoryName, setCategoryName] = useState({})
 
+  // 模态框的状态
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   useEffect(() => {
     // 构建用户id到用户名的映射关系
-
-    // 构建分类id到分类名的映射关系
-    console.log('useeffect')
-    console.log(categoryList)
-
-    // const categoryMap = categoryList.reduce((acc, category) => {
-    //   acc[category.id] = category.categoryName;
-    //   return acc;
-    // })
-    // setCategoryName(categoryMap)
-
     if (userList.length > 0) {
       const map = userList.reduce((acc, user) => {
         acc[user.id] = user.name;
@@ -53,10 +39,10 @@ const Product = () => {
       }, {}); // 添加初始值 {}
       setUserName(map);
     } else {
-      console.log('categoryList is empty');
+      console.log('userList is empty');
     }
-   
-
+    
+    // 构建分类id到分类名的映射关系
     if (categoryList.length > 0) {
       const categoryMap = categoryList.reduce((acc, category) => {
         acc[category.id] = category.categoryName;
@@ -78,7 +64,7 @@ const Product = () => {
     {
       title: '商品名称',
       dataIndex: 'productName',
-      // width: 220
+      width: 200
     },
     {
       title: '商品类别',
@@ -100,11 +86,11 @@ const Product = () => {
     },
     {
       title: '操作',
-      render: data => {
+      render: (data) => {
         return (
           <Space size="middle">
             <Button type="primary" shape="circle" icon={<EditOutlined />} />
-            <Button type="primary" shape="circle" icon={<QuestionCircleOutlined />} />
+            <Button type="primary" shape="circle" icon={<QuestionCircleOutlined />} onClick={() => showModal(data)}/>
             <Button
               type="primary"
               danger
@@ -117,18 +103,120 @@ const Product = () => {
     }
   ]
 
-
+ 
   // 获取商品列表
   const [list, setList] = useState([])
+  // 商品总数
   const [count, setCount] = useState(0)
+  // 筛选后的商品列表
+  const [filteredData, setFilteredData] = useState([]);
+  // 搜索输入框的状态
+  const [searchText, setSearchText] = useState('')
+
+
+
   useEffect(() => {
     async function getList() {
       const res = await getProductAPI()
       setList(res)
-      setCount(res.length)
+      setFilteredData(res); // 初始化筛选后的数据为全部数据
+      setCount(res.length) 
     }
     getList()
-  },[])
+  }, [])
+  
+  const onFinish = (formValue) => {
+    console.log(formValue)
+    // 筛选条件
+    const { category, user } = formValue;
+
+    // 进行筛选
+    const filteredData = list.filter(item => {
+      // return (category === '' || item.productCategoryId === category) &&
+      //        (user === '' || item.productUserId === user);
+      return (category === '' || item.productCategoryId === category) && 
+             (user === '' || item.productUserId === user) &&
+             (searchText === '' || item.productName.toLowerCase().includes(searchText.toLowerCase()));
+    });
+
+    // 更新筛选后的数据和计数
+    setFilteredData(filteredData);
+    setCount(filteredData.length);
+  };
+  const onReset = () => {
+    // 重置筛选条件
+    setFilteredData(list); // 恢复为全部数据
+    setCount(list.length);
+    setSearchText(''); // 重置搜索输入框
+    window.location.reload()
+  }
+
+  const handleSearch = (e) => {
+    setSearchText(e.target.value);
+    
+  }
+
+  // 控制模态框的显示与隐藏
+  const showModal = (product) => {
+    setSelectedProduct(product);
+    setIsModalVisible(true);
+  }
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  }
+
+  // 控制模态框的关闭
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  }
+
+  // 模态框中的列配置，展示商品表的所有字段
+  const modalColumns = [
+    {
+      title: '商品ID',
+      dataIndex: 'id',
+    },
+    {
+      title: '商品图片',
+      dataIndex: 'productImage',
+    },
+    {
+      title: '商品名称',
+      dataIndex: 'productName',
+    },
+    {
+      title: '商品描述',
+      dataIndex: 'productDescription',
+    },
+    {
+      title: '商品类别',
+      dataIndex: 'productCategoryId',
+      render: (productCategoryId) => categoryName[productCategoryId] || '-',
+    },
+    {
+      title: '商品用户',
+      dataIndex: 'productUserId',
+      render: (productUserId) => userName[productUserId] || '-',
+    },
+    {
+      title: '价格',
+      dataIndex: 'productPrice',
+    },
+    {
+      title: '库存数',
+      dataIndex: 'productStock',
+    },
+    {
+      title: '商品创建时间',
+      dataIndex: 'createdAt',
+    },
+    {
+      title: '商品更新时间',
+      dataIndex: 'updatedAt',
+    }
+  ];
+
   return (
     <div>
       <Card
@@ -140,35 +228,88 @@ const Product = () => {
         }
         style={{ marginBottom: 20 }}
       >
-        <Form initialValues={{ status: '' }}>
-
+        <Form initialValues={{ category:'',user:'' }} onFinish={onFinish}>
+          <Form.Item label="商品名称" name="productName">
+            <Input
+              placeholder="请输入商品名称"
+              style={{ width: 160 }}
+              value={searchText}
+              onChange={handleSearch}
+            />
+          </Form.Item>
           <Form.Item label="商品分类" name="category">
             <Select
-              placeholder="请选择商品分类"
-              style={{ width: 120 }}
+              placeholder="请选择商品类别"
+              style={{ width: 160 }}
             >
+              {/* <Option value="">全部</Option> */}
               {categoryList.map(item => <Option key={item.id} value={item.id}>{item.categoryName}</Option>)}
             </Select>
           </Form.Item>
 
-          {/* <Form.Item label="日期" name="date"> */}
-            {/* 传入locale属性 控制中文显示*/}
-            {/* <RangePicker locale={locale}></RangePicker>
-          </Form.Item> */}
+          <Form.Item label="用户分类" name="user">
+            <Select
+              placeholder="请选择用户名称"
+              style={{ width: 160 }}
+            >
+              {/* <Option value="">全部</Option> */}
+              {userList.map(item => <Option key={item.id} value={item.id}>{item.name}</Option>)}
+            </Select>
+          </Form.Item>
 
           <Form.Item>
             <Button type="primary" htmlType="submit" style={{ marginLeft: 40 }}>
               筛选
+            </Button>
+            <Button type="primary" htmlType="button" onClick={onReset} style={{ marginLeft: 40 }}>
+              刷新
             </Button>
           </Form.Item>
         </Form>
       </Card>
       {/* 表格区域 */}
       <Card title={`根据筛选条件共查询到 ${count} 条结果：`}>
-        <Table rowKey="id" columns={columns} dataSource={list} />
+        <Table rowKey="id" columns={columns} dataSource={filteredData} />
       </Card>
+      {/* 模态框 */}
+      <Modal
+        title="商品详细信息"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={null} // 移除默认的确定和取消按钮
+        width="80%"  // 设置模态框宽度为80%
+        // width="720px"  // 设置模态框宽度的具体像素值
+        // style={{ height: '100vh' }} // 设置模态框高度为视口高度的60%（无响应）
+      >
+        {selectedProduct && (
+          <Table
+            rowKey="id"
+            columns={modalColumns}
+            dataSource={[selectedProduct]}
+            pagination={false} // 不需要分页
+          />
+        )}
+      </Modal>
     </div>
   )
 }
 
 export default Product
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,41 +1,71 @@
 import { Link } from 'react-router-dom'
 import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select } from 'antd'
-//时间选择器汉化处理
-import locale from 'antd/es/date-picker/locale/zh_CN'
 
 // 导入资源
 import { Table, Tag, Space } from 'antd'
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
-import img404 from '@/assets/error.png'
+import { EditOutlined, QuestionCircleOutlined, DeleteOutlined } from '@ant-design/icons'
+// import useCategory from '@/hooks/useCategory'
+import { useEffect, useState } from 'react'
+import { getProductAPI } from '@/apis/product'
+import useCategory from '@/hooks/useCategory'
+import useUser from '@/hooks/useUser'
 
 const { Option } = Select
-const { RangePicker } = DatePicker
 
-const Article = () => {
+const Product = () => {
+  const { categoryList =[]} = useCategory()
+  const { userList =[]} = useUser()
+
+  // 用户id到用户名的映射
+  const [userName, setUserName] = useState({})
+  // 商品分类id到商品分类名的映射
+  const [categoryName, setCategoryName] = useState({})
+
+  useEffect(() => {
+    // 构建用户id到用户名的映射关系
+    if (userList.length > 0) {
+      const map = userList.reduce((acc, user) => {
+        acc[user.id] = user.name;
+        return acc;
+      }, {}); // 添加初始值 {}
+      setUserName(map);
+    } else {
+      console.log('categoryList is empty');
+    }
+    
+    // 构建分类id到分类名的映射关系
+    if (categoryList.length > 0) {
+      const categoryMap = categoryList.reduce((acc, category) => {
+        acc[category.id] = category.categoryName;
+        return acc;
+      }, {}); // 添加初始值 {}
+      setCategoryName(categoryMap);
+    } else {
+      console.log('categoryList is empty');
+    }
+  },[userList, categoryList])
+
   // 准备列数据
   const columns = [
     {
       title: '商品图片',
-      dataIndex: 'cover',
-      width: 180,
-      render: cover => {
-        return <img src={cover.images[0] || img404} width={80} height={60} alt="" />
-      }
+      dataIndex: 'productImage',
+      // width: 220
     },
     {
       title: '商品名称',
       dataIndex: 'productName',
-      // width: 220
+      width: 200
     },
     {
       title: '商品类别',
       dataIndex: 'productCategoryId',
-      // render: data => <Tag color="green">审核通过</Tag>
+      render: (productCategoryId)=>categoryName[productCategoryId] ||'-'
     },
     {
-      title: '商品用户id',
+      title: '商品用户',
       dataIndex: 'productUserId',
-      // render: data => <Tag color="green">审核通过</Tag>
+      render:(productUserId)=>userName[productUserId] ||'-'
     },
     {
       title: '价格',
@@ -62,69 +92,34 @@ const Article = () => {
       }
     }
   ]
-  // 准备表格body数据
-  const data = [
-    {
-      id: '8218',
-      comment_count: 0,
-      cover: {
-        images: [],
-      },
-      like_count: 0,
-      pubdate: '2019-03-11 09:00:00',
-      read_count: 2,
-      status: 2,
-      title: 'wkwebview离线化加载h5资源解决方案'
+
+  // 获取商品列表
+  const [list, setList] = useState([])
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    async function getList() {
+      const res = await getProductAPI()
+      setList(res)
+      setCount(res.length)
     }
-  ]
+    getList()
+  }, [])
+
   return (
     <div>
-      <Card
+      {/* 表格区域 */}
+      <Card 
         title={
           <Breadcrumb items={[
             { title: <Link to={'/layout'}>首页</Link> },
-            { title: '商品列表' },
+            { title: `一共有${count} 条商品信息：` },
           ]} />
         }
-        style={{ marginBottom: 20 }}
       >
-        <Form initialValues={{ status: '' }}>
-          {/* <Form.Item label="状态" name="status">
-            <Radio.Group>
-              <Radio value={''}>全部</Radio>
-              <Radio value={0}>草稿</Radio>
-              <Radio value={2}>审核通过</Radio>
-            </Radio.Group>
-          </Form.Item> */}
-
-          <Form.Item label="商品分类" name="category">
-            <Select
-              placeholder="请选择商品分类"
-              style={{ width: 120 }}
-            >
-              <Option value="jack">Jack</Option>
-              <Option value="lucy">Lucy</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item label="日期" name="date">
-            {/* 传入locale属性 控制中文显示*/}
-            <RangePicker locale={locale}></RangePicker>
-          </Form.Item>
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit" style={{ marginLeft: 40 }}>
-              筛选
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
-      {/* 表格区域 */}
-      <Card title={`根据筛选条件共查询到 count 条结果：`}>
-        <Table rowKey="id" columns={columns} dataSource={data} />
+        <Table rowKey="id" columns={columns} dataSource={list} />
       </Card>
     </div>
   )
 }
 
-export default Article
+export default Product
