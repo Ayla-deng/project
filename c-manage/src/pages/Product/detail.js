@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Card, Breadcrumb, Form, Button, Select,Input, Modal, Popconfirm } from 'antd'
 //时间选择器汉化处理
 // import locale from 'antd/es/date-picker/locale/zh_CN'
@@ -18,6 +18,7 @@ const { Option } = Select
 // const { RangePicker } = DatePicker
 
 const Product = () => {
+  const navigate = useNavigate()
   const { categoryList = [] } = useCategory()
   const { userList = [] } = useUser()
 
@@ -86,7 +87,7 @@ const Product = () => {
       render: (data) => {   // data 用于传递参数
         return (
           <Space size="middle">
-            <Button type="primary" shape="circle" icon={<EditOutlined />} />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} onClick={() => navigate(`/layout/product/edit?id=${data.id}`)} />
             <Button type="primary" shape="circle" icon={<QuestionCircleOutlined />} onClick={() => showModal(data)} />
             <Popconfirm
               title="删除商品"

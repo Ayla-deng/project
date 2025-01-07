@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 // 封装和文商品相关的接口函数
 
-import axios from 'axios'
+// import axios from 'axios'
 import request from '@/utils/request'
 
 
@@ -25,8 +25,27 @@ export function getProductAPI(params) {
   })
 }
 
+// 3. 获取单个商品详情
 
-// 3. 删除商品
+export function getProductByIdAPI (id){
+  return request({
+    url: `product/${id}`,
+    method: 'GET',
+  })
+}
+
+// 4. 更新商品表单
+
+export function updateProductAPI(data) {
+  return request({
+    url: `product/${data.id}`,
+    method: 'PATCH',
+    data
+  })
+}
+
+
+// 5. 删除商品
 
 export function delProducrAPI (id){
   return request({

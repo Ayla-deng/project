@@ -21,3 +21,13 @@ export function delCategoryAPI (id){
   })
 }
 
+// 3. 获取单个商品分类详情
+
+export function updateCategoryAPI (data){
+  return request({
+    url: `category/${data.id}`,
+    method: 'PATCH',
+    data
+  })
+}
+
