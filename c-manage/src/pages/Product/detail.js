@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import { Link } from 'react-router-dom'
-import { Card, Breadcrumb, Form, Button, Select,Input, Modal } from 'antd'
+import { Card, Breadcrumb, Form, Button, Select,Input, Modal, Popconfirm } from 'antd'
 //时间选择器汉化处理
 // import locale from 'antd/es/date-picker/locale/zh_CN'
 
@@ -9,7 +9,7 @@ import { Table, Space } from 'antd'
 import { EditOutlined, QuestionCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 // import useCategory from '@/hooks/useCategory'
 import { useEffect, useState } from 'react'
-import { getProductAPI } from '@/apis/product'
+import { getProductAPI, delProducrAPI } from '@/apis/product'
 import useCategory from '@/hooks/useCategory'
 import useUser from '@/hooks/useUser'
 
@@ -18,7 +18,7 @@ const { Option } = Select
 // const { RangePicker } = DatePicker
 
 const Product = () => {
-  const { categoryList =[]} = useCategory()
+  const { categoryList = [] } = useCategory()
   const { userList = [] } = useUser()
 
   // 用户id到用户名的映射
@@ -26,9 +26,6 @@ const Product = () => {
   // 商品分类id到商品分类名的映射
   const [categoryName, setCategoryName] = useState({})
 
-  // 模态框的状态
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     // 构建用户id到用户名的映射关系
@@ -52,7 +49,7 @@ const Product = () => {
     } else {
       console.log('categoryList is empty');
     }
-  },[userList, categoryList])
+  }, [userList, categoryList])
 
   // 准备列数据
   const columns = [
@@ -69,12 +66,12 @@ const Product = () => {
     {
       title: '商品类别',
       dataIndex: 'productCategoryId',
-      render: (productCategoryId)=>categoryName[productCategoryId] ||'-'
+      render: (productCategoryId) => categoryName[productCategoryId] || '-'
     },
     {
       title: '商品用户',
       dataIndex: 'productUserId',
-      render:(productUserId)=>userName[productUserId] ||'-'
+      render: (productUserId) => userName[productUserId] || '-'
     },
     {
       title: '价格',
@@ -86,17 +83,27 @@ const Product = () => {
     },
     {
       title: '操作',
-      render: (data) => {
+      render: (data) => {   // data 用于传递参数
         return (
           <Space size="middle">
             <Button type="primary" shape="circle" icon={<EditOutlined />} />
-            <Button type="primary" shape="circle" icon={<QuestionCircleOutlined />} onClick={() => showModal(data)}/>
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-            />
+            <Button type="primary" shape="circle" icon={<QuestionCircleOutlined />} onClick={() => showModal(data)} />
+            <Popconfirm
+              title="删除商品"
+              description="确认删除当前商品吗?"
+              onConfirm={() => onConfirm(data)}
+              // onCancel={cancel}   // cancel is not defined
+              okText="确定"
+              cancelText="取消"
+            >
+              <Button
+                type="primary"
+                danger
+                shape="circle"
+                icon={<DeleteOutlined />}
+              />
+            </Popconfirm>
+            
           </Space>
         )
       }
@@ -109,18 +116,22 @@ const Product = () => {
   // 商品总数
   const [count, setCount] = useState(0)
   // 筛选后的商品列表
-  const [filteredData, setFilteredData] = useState([]);
+  // const [filteredData, setFilteredData] = useState([]);
   // 搜索输入框的状态
   const [searchText, setSearchText] = useState('')
-
+  // 模态框的状态
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  // 获取商品操作后状态
+  const [operateData, setOperateData] = useState([]);
 
 
   useEffect(() => {
     async function getList() {
       const res = await getProductAPI()
       setList(res)
-      setFilteredData(res); // 初始化筛选后的数据为全部数据
-      setCount(res.length) 
+      setCount(res.length)
+      setOperateData(res) // 初始化操作后的数据为全部数据
     }
     getList()
   }, [])
@@ -131,29 +142,27 @@ const Product = () => {
     const { category, user } = formValue;
 
     // 进行筛选
-    const filteredData = list.filter(item => {
-      // return (category === '' || item.productCategoryId === category) &&
-      //        (user === '' || item.productUserId === user);
-      return (category === '' || item.productCategoryId === category) && 
-             (user === '' || item.productUserId === user) &&
-             (searchText === '' || item.productName.toLowerCase().includes(searchText.toLowerCase()));
+    const operateData = list.filter(item => {
+      return (category === '' || item.productCategoryId === category) &&
+        (user === '' || item.productUserId === user) &&
+        (searchText === '' || item.productName.toLowerCase().includes(searchText.toLowerCase()));
     });
 
-    // 更新筛选后的数据和计数
-    setFilteredData(filteredData);
-    setCount(filteredData.length);
+    // 更新筛选操作后的数据和计数
+    setOperateData(operateData);
+    setCount(operateData.length)
   };
   const onReset = () => {
     // 重置筛选条件
-    setFilteredData(list); // 恢复为全部数据
+    // setFilteredData(list); // 恢复为全部数据
+    setOperateData(list); // 恢复为全部数据
     setCount(list.length);
     setSearchText(''); // 重置搜索输入框
-    window.location.reload()
+    // window.location.reload()
   }
 
   const handleSearch = (e) => {
     setSearchText(e.target.value);
-    
   }
 
   // 控制模态框的显示与隐藏
@@ -217,6 +226,21 @@ const Product = () => {
     }
   ];
 
+  // 删除商品操作
+  const onConfirm = async (data) => {
+    console.log('删除点击了', data)
+    // 调用删除接口(id)
+    await delProducrAPI(data.id)
+
+    // 重新获取删除后的商品列表
+    const res = await getProductAPI()
+    setList(res)
+    // setDeletedData(res)
+    setOperateData(res) // 更新操作数据为全部数据
+    // 重新计算删除后的商品总数
+    setCount(res.length)
+  }
+
   return (
     <div>
       <Card
@@ -239,20 +263,20 @@ const Product = () => {
           </Form.Item>
           <Form.Item label="商品分类" name="category">
             <Select
-              placeholder="请选择商品类别"
+              // placeholder="请选择商品类别"
               style={{ width: 160 }}
             >
-              {/* <Option value="">全部</Option> */}
+              <Option value="" disabled selected>请选择商品类别</Option>
               {categoryList.map(item => <Option key={item.id} value={item.id}>{item.categoryName}</Option>)}
             </Select>
           </Form.Item>
 
           <Form.Item label="用户分类" name="user">
             <Select
-              placeholder="请选择用户名称"
+              // placeholder="请选择用户名称"
               style={{ width: 160 }}
             >
-              {/* <Option value="">全部</Option> */}
+              <Option value="" disabled selected>请选择用户名称</Option>
               {userList.map(item => <Option key={item.id} value={item.id}>{item.name}</Option>)}
             </Select>
           </Form.Item>
@@ -269,12 +293,12 @@ const Product = () => {
       </Card>
       {/* 表格区域 */}
       <Card title={`根据筛选条件共查询到 ${count} 条结果：`}>
-        <Table rowKey="id" columns={columns} dataSource={filteredData} />
+        <Table rowKey="id" columns={columns} dataSource={operateData} />
       </Card>
       {/* 模态框 */}
       <Modal
         title="商品详细信息"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         footer={null} // 移除默认的确定和取消按钮

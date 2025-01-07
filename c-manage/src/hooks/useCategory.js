@@ -1,6 +1,6 @@
 // 封装获取分类数据的逻辑
 import { useEffect, useState } from 'react'
-import { getCategoryIdAPI } from '@/apis/product'
+import { getCategoryAPI } from '@/apis/category'
 
 function useCategory() {
   // 1. 获取分类的所有数据逻辑
@@ -10,7 +10,7 @@ function useCategory() {
     useEffect(() => {
       // 1. 封装函数 在函数体内调用接口
       const getCategoryList = async () => {
-        const res = await getCategoryIdAPI()
+        const res = await getCategoryAPI()
         setCategoryList(res)//注意这里的数据信息，是否有data字段
       }
       // 2. 调用函数

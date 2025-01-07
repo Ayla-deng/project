@@ -20,3 +20,33 @@ export function getUserInfoAPI() {
   })
 }
 
+// 3. 提交用户表单
+export function createUserAPI(data) {
+  return request({
+    url: 'user',
+    method: 'POST',
+    data
+  })
+}
+
+
+// 3. 获取用户列表
+export function getUserAPI(params) {
+  return request({
+    url: 'user',
+    method: 'GET',
+    params
+  })
+}
+
+// 2. 删除用户
+
+export function delUserAPI (id){
+  return request({
+    url: `user/${id}`,
+    method: 'DELETE',
+  })
+}
+
+
+

@@ -1,49 +1,35 @@
 import { Link } from 'react-router-dom'
-import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select } from 'antd'
-//时间选择器汉化处理
-import locale from 'antd/es/date-picker/locale/zh_CN'
+import { Card, Breadcrumb, Button, Popconfirm } from 'antd'
 
 // 导入资源
-import { Table, Tag, Space } from 'antd'
+import { Table, Space } from 'antd'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
-import img404 from '@/assets/error.png'
+import { useEffect, useState } from 'react'
 
-const { Option } = Select
-const { RangePicker } = DatePicker
+import { getCategoryAPI, delCategoryAPI } from '@/apis/category'
 
-const Article = () => {
+
+const Product = () => {
+
   // 准备列数据
   const columns = [
     {
-      title: '商品图片',
-      dataIndex: 'cover',
-      width: 180,
-      render: cover => {
-        return <img src={cover.images[0] || img404} width={80} height={60} alt="" />
-      }
-    },
-    {
-      title: '商品名称',
-      dataIndex: 'productName',
+      title: '分类id号',
+      dataIndex: 'id',
       // width: 220
     },
     {
-      title: '商品类别',
-      dataIndex: 'productCategoryId',
-      // render: data => <Tag color="green">审核通过</Tag>
+      title: '分类名称',
+      dataIndex: 'categoryName',
+      width: 200
     },
     {
-      title: '商品用户id',
-      dataIndex: 'productUserId',
-      // render: data => <Tag color="green">审核通过</Tag>
+      title: '创建时间',
+      dataIndex: 'createdAt'
     },
     {
-      title: '价格',
-      dataIndex: 'productPrice'
-    },
-    {
-      title: '库存数',
-      dataIndex: 'productStock'
+      title: '更新时间',
+      dataIndex: 'updatedAt'
     },
     {
       title: '操作',
@@ -51,80 +37,71 @@ const Article = () => {
         return (
           <Space size="middle">
             <Button type="primary" shape="circle" icon={<EditOutlined />} />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-            />
+            
+            <Popconfirm
+              title="删除商品分类"
+              description="确认删除当前分类?"
+              onConfirm={() => onConfirm(data)}
+              // onCancel={cancel}   // cancel is not defined
+              okText="确定"
+              cancelText="取消"
+            >
+              <Button
+                type="primary"
+                danger
+                shape="circle"
+                icon={<DeleteOutlined />}
+              />
+            </Popconfirm>
           </Space>
         )
       }
     }
   ]
-  // 准备表格body数据
-  const data = [
-    {
-      id: '8218',
-      comment_count: 0,
-      cover: {
-        images: [],
-      },
-      like_count: 0,
-      pubdate: '2019-03-11 09:00:00',
-      read_count: 2,
-      status: 2,
-      title: 'wkwebview离线化加载h5资源解决方案'
+
+  // 获取商品列表
+  const [list, setList] = useState([])
+  const [count, setCount] = useState(0)
+  // 删除后的分类列表
+  const [deletedData, setDeletedData] = useState([]);
+  useEffect(() => {
+    async function getList() {
+      const res = await getCategoryAPI()
+      setList(res)
+      setCount(res.length)
+      setDeletedData(res)//更新删除后的数据为全部数据
     }
-  ]
+    getList()
+  }, [])
+
+  
+  // 删除分类操作
+  const onConfirm =  async (data) => {
+    console.log('删除点击了',data)
+    // 调用删除接口(id)
+    await delCategoryAPI(data.id)
+    // 重新获取用户列表
+        const res = await getCategoryAPI()
+        setList(res)
+        setCount(res.length)
+        setDeletedData(res) // 更新删除后的数据
+  }
+
   return (
     <div>
-      <Card
+      {/* 表格区域 */}
+      <Card 
         title={
           <Breadcrumb items={[
             { title: <Link to={'/layout'}>首页</Link> },
-            { title: '商品列表' },
+            { title: `一共有${count} 条商品分类信息：` },
           ]} />
         }
-        style={{ marginBottom: 20 }}
       >
-        <Form initialValues={{ status: '' }}>
-          {/* <Form.Item label="状态" name="status">
-            <Radio.Group>
-              <Radio value={''}>全部</Radio>
-              <Radio value={0}>草稿</Radio>
-              <Radio value={2}>审核通过</Radio>
-            </Radio.Group>
-          </Form.Item> */}
-
-          <Form.Item label="商品分类" name="category">
-            <Select
-              placeholder="请选择商品分类"
-              style={{ width: 120 }}
-            >
-              <Option value="jack">Jack</Option>
-              <Option value="lucy">Lucy</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item label="日期" name="date">
-            {/* 传入locale属性 控制中文显示*/}
-            <RangePicker locale={locale}></RangePicker>
-          </Form.Item>
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit" style={{ marginLeft: 40 }}>
-              筛选
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
-      {/* 表格区域 */}
-      <Card title={`根据筛选条件共查询到 count 条结果：`}>
-        <Table rowKey="id" columns={columns} dataSource={data} />
+        <Table rowKey="id" columns={columns} dataSource={deletedData} />
       </Card>
     </div>
   )
 }
 
-export default Article
+export default Product

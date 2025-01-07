@@ -3,17 +3,9 @@
 
 import axios from 'axios'
 import request from '@/utils/request'
-// 1. 获取商品分类列表
-
-export function getCategoryIdAPI (){
-  return request({
-    url: 'category',
-    method: 'GET',
-  })
-}
 
 
-// 2. 提交商品表单
+// 1. 提交商品表单
 
 export function createProductAPI(data) {
   return request({
@@ -23,7 +15,7 @@ export function createProductAPI(data) {
   })
 }
 
-// 3. 获取商品列表
+// 2. 获取商品列表
 
 export function getProductAPI(params) {
   return request({
@@ -34,11 +26,11 @@ export function getProductAPI(params) {
 }
 
 
-// 4. 获取用户名称列表
+// 3. 删除商品
 
-export function getUserIdAPI (){
+export function delProducrAPI (id){
   return request({
-    url: 'user',
-    method: 'GET',
+    url: `product/${id}`,
+    method: 'DELETE',
   })
 }
