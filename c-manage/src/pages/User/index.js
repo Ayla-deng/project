@@ -104,16 +104,27 @@ const User = () => {
 
 
   const onFinish = async (values) => {
-      console.log(values)
+    console.log('11111');
+    
+    console.log(values)
+    console.log('11111');
+    
       
       try {
-        const { name, id, email,  } = values;
+        const { name, id, email,password } = values;
+        console.log('22222222');
+        console.log(values)
+
+        console.log('22222222');
+        
         const reqData = {
           name,
           id,
           email,
-          // password
+          password
         };
+        console.log(reqData)
+
   
         // 调用更新分类的 API
         await updateUserAPI(reqData);

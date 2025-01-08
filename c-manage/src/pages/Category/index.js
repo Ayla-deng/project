@@ -113,11 +113,11 @@
 
 
 import { Link } from 'react-router-dom';
-import { Card, Breadcrumb, Button, Popconfirm, Modal, Form, Input, Space, Table } from 'antd';
-import { EditOutlined, DeleteOutlined, AppstoreAddOutlined } from '@ant-design/icons';
+import { Card, Breadcrumb, Button, Popconfirm, Modal, Form, Input, Space, Table, InputNumber } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 
-import { getCategoryAPI, delCategoryAPI, updateCategoryAPI } from '@/apis/category';
+import { getCategoryAPI, delCategoryAPI, updateCategoryAPI, createCategoryAPI } from '@/apis/category';
 
 const CategoryPage = () => {
   // 准备列数据
@@ -188,6 +188,9 @@ const CategoryPage = () => {
 
   // 管理弹出框的状态
   const [isModalVisible, setIsModalVisible] = useState(false);
+  // 管理新增弹出框的状态
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  
   const [editingCategory, setEditingCategory] = useState(null);
 
   // 获取分类数据
@@ -206,22 +209,51 @@ const CategoryPage = () => {
     setIsModalVisible(true);
   };
 
-  // 关闭弹出框
+
+
+  // 处理新增按钮点击事件
+  const handleAdd = (data) => {
+    setEditingCategory(data);
+    setIsAddModalVisible(true);
+  };
+
+
+
+
+
+
+  // 关闭编辑弹出框
   const handleCancel = () => {
     setIsModalVisible(false);
     setEditingCategory(null);
     form.resetFields();
   };
 
-  // 处理表单提交事件
+   // 关闭新增弹出框
+  const handleAddCancel = () => {
+    setIsAddModalVisible(false);
+    // setEditingCategory(null);
+    addform.resetFields();
+  };
+
+
+
+
+  // 处理表单编辑提交事件
   const [form] = Form.useForm();
+  // 处理表单新增提交事件
+  const [addform] = Form.useForm();
 
   const onFinish = async (values) => {
+    console.log('hhhhhhh');
     console.log(values)
     console.log('hhhhhhh');
     
     try {
       const { categoryName, id, parentCategoryId } = values;
+      console.log('2222222');
+      console.log(values)
+      console.log('222222222');
       const reqData = {
         categoryName,
         id,
@@ -244,6 +276,41 @@ const CategoryPage = () => {
       console.error('更新失败', error);
     }
   };
+
+
+  const handleAddFinish = async (values) => {
+    console.log('hhhhhhh');
+    console.log(values)
+    console.log('hhhhhhh');
+    try {
+      const { categoryName, parentCategoryId } = values;
+      console.log('2222222');
+      console.log(values)
+      console.log('222222222');
+
+      const reqData = {
+        categoryName,
+        parentCategoryId
+      };
+      console.log('请求数据',reqData)
+
+      // 调用创建分类的 API
+      // 这一步无响应 为什么（数据类型的问题）
+      await createCategoryAPI(reqData);
+
+      // 重新获取分类数据
+      const res = await getCategoryAPI();
+      setList(res);
+      setCount(res.length);
+
+      // 关闭弹出框
+      setIsAddModalVisible(false);
+      // setEditingCategory(null);
+      addform.resetFields();
+    } catch (error) {
+      console.error('新增失败', error);
+    }
+  }
 
   // 删除分类操作
   const onConfirm = async (data) => {
@@ -268,15 +335,63 @@ const CategoryPage = () => {
         }
       >
         <Table rowKey="id" columns={columns} dataSource={list} />
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            style={{ marginLeft: 40 }}
+            onClick={handleAdd}
+          >
+              新增分类
+            </Button>
+        </Form.Item>
+        {/* 新增弹出框区域 */}
+        <Modal
+          title="新增分类"
+          open={isAddModalVisible}
+          onCancel={handleAddCancel}
+          footer={[
+            <Button key="back" onClick={handleCancel}>取消</Button>,
+            <Button key="submit" type="primary" onClick={addform.submit}>确认</Button>,
+          ]}
+        >
+          <Form
+            form={addform}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            initialValues
+            onFinish={handleAddFinish}
+            // onAddFinish={onAddFinish}
+          >
+            
+            <Form.Item
+              label="分类名称"
+              name="categoryName"
+              rules={[{ required: true, message: '请输入分类名称' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="父分类ID"
+              name="parentCategoryId"
+              rules={[{ required: false, message: '请输入父分类ID' }]}
+            >
+              <InputNumber placeholder="请输入父分类ID" style={{ width: 200 }} />
+              {/* <Input type="number" /> */}
+            </Form.Item>
+            
+          </Form>
+        </Modal>
 
-        {/* 编辑弹出框 */}
+
+        {/* 编辑弹出框区域 */}
         <Modal
           title="编辑分类"
           open={isModalVisible}
           onCancel={handleCancel}
           footer={[
             <Button key="back" onClick={handleCancel}>取消</Button>,
-            <Button key="submit" type="primary" onClick={form.submit}>确认</Button>,
+            <Button key="submit" type="primary" onClick={form.submit}>提交</Button>,
           ]}
         >
           <Form
@@ -291,21 +406,21 @@ const CategoryPage = () => {
               name="id"
               rules={[{ required: true, message: '请输入分类ID' }]}
             >
-              <Input disabled />
+              <Input disabled  />
             </Form.Item>
             <Form.Item
               label="分类名称"
               name="categoryName"
               rules={[{ required: true, message: '请输入分类名称' }]}
             >
-              <Input />
+              <Input placeholder="请输入分类名称" />
             </Form.Item>
             <Form.Item
-              label="分类ID"
+              label="父分类ID"
               name="parentCategoryId"
               rules={[{ required: true, message: '请输入父分类ID' }]}
             >
-              <Input  />
+              <InputNumber placeholder="请输入父分类ID" style={{ width: 200 }} />
             </Form.Item>
             
           </Form>
