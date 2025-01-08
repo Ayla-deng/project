@@ -50,9 +50,9 @@ export function delUserAPI (id){
 
 // 6. 获取单个用户详情
 
-export function updateUserUserAPI (data){
+export function updateUserAPI (data){
   return request({
-    url: `useruser/${data.id}`,
+    url: `user/${data.id}`,
     method: 'PATCH',
     data
   })

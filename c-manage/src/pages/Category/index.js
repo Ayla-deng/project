@@ -155,12 +155,12 @@ const CategoryPage = () => {
               icon={<EditOutlined />}
               onClick={() => handleEdit(data)}
             />
-            <Button
+            {/* <Button
               type="primary"
               shape="circle"
               icon={<AppstoreAddOutlined />}
-              onClick={() => handleEdit(data)}
-            />
+              // onClick={() => handleEdit(data)}
+            /> */}
 
             <Popconfirm
               title="删除商品分类"
