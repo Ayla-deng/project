@@ -52,12 +52,13 @@ const Publish = () => {
   const onFinish = (formValue) => {
     console.log(formValue)//这里是运行成功了的
     
-    const { productName,productUserId, productCategoryId, productPrice, productStock, productDescription, productImage } = formValue
+    const { productName, productUserId, productCategoryId, productPrice, productStock, productDescription, productImage } = formValue
+    const categoryId = categoryList.find(item => item.id === formValue.productCategory).id // 找到分类id
     // 1. 按照接口文档的格式处理收集到的表单数据
     const reqData = {
       productName,
       productUserId:productUserId || currentUserId,  // 确保在创建时使用当前登录用户的 ID
-      productCategoryId,
+      productCategoryId:productCategoryId || categoryId, // 确保在创建时使用当前选择的分类的 ID
       productPrice,
       productStock,
       productDescription,
@@ -98,7 +99,7 @@ const Publish = () => {
     // 2. 调用实例方法 完成回填
   },[productId, form])
 
-  const name = useSelector(state => state.user.userInfo.name)
+  // const name = useSelector(state => state.user.userInfo.name)
   console.log(currentUserName)
 
   return (

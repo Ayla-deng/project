@@ -114,7 +114,7 @@
 
 import { Link } from 'react-router-dom';
 import { Card, Breadcrumb, Button, Popconfirm, Modal, Form, Input, Space, Table } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, AppstoreAddOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 
 import { getCategoryAPI, delCategoryAPI, updateCategoryAPI } from '@/apis/category';
@@ -153,6 +153,12 @@ const CategoryPage = () => {
               type="primary"
               shape="circle"
               icon={<EditOutlined />}
+              onClick={() => handleEdit(data)}
+            />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<AppstoreAddOutlined />}
               onClick={() => handleEdit(data)}
             />
 

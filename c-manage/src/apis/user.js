@@ -30,7 +30,7 @@ export function createUserAPI(data) {
 }
 
 
-// 3. 获取用户列表
+// 4. 获取用户列表
 export function getUserAPI(params) {
   return request({
     url: 'user',
@@ -39,7 +39,7 @@ export function getUserAPI(params) {
   })
 }
 
-// 2. 删除用户
+// 5. 删除用户
 
 export function delUserAPI (id){
   return request({
@@ -48,5 +48,14 @@ export function delUserAPI (id){
   })
 }
 
+// 6. 获取单个用户详情
+
+export function updateUserUserAPI (data){
+  return request({
+    url: `useruser/${data.id}`,
+    method: 'PATCH',
+    data
+  })
+}
 
 
